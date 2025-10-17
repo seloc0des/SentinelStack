@@ -61,7 +61,7 @@ All outbound DNS from VPN clients is intercepted by Pi-hole and resolved through
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/<your-org>/selo-privacy-stack.git
+   git clone https://github.com/selodesigns/SentinelStack.git
    cd selo-privacy-stack
    ```
 2. Transfer the installer to the target host (if running remotely):
