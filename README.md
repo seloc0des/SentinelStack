@@ -161,10 +161,13 @@ Need deeper automation or customizations? Extend `scripts/install_privacystack.s
 Utilize these pi-hole blocklists and save yourself a ton of data by rejecting whatever is being downloaded from ads, etc.
 Keep YOUR data PRIVATE and YOURS.
 
-https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts	
-https://big.oisd.nl/	
-https://v.firebog.net/hosts/AdguardDNS.txt	
-https://raw.githubusercontent.com/seloc0des/databrokerblocklist/refs/heads/main/lists/databroker.txt
+- https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+
+- https://big.oisd.nl/	
+
+- https://v.firebog.net/hosts/AdguardDNS.txt	
+
+- https://raw.githubusercontent.com/seloc0des/databrokerblocklist/refs/heads/main/lists/databroker.txt
 
 This system, these block lists and uBlock Origin Ad-blocker.
 **Chef's Kiss**
