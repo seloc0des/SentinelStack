@@ -33,7 +33,7 @@ die() {
 ensure_apt_update() {
   if [[ $APT_UPDATED -eq 0 ]]; then
     log 'Updating package index (apt-get update)...'
-    apt-get update -y
+    apt-get update
     APT_UPDATED=1
   fi
 }
@@ -51,29 +51,42 @@ parse_args() {
   VPN_NETWORK='10.8.0.0/24'
   CLIENT_NAME='client1'
 
+  require_arg() {
+    local opt="$1"
+    if [[ $# -lt 2 || -z "${2:-}" ]]; then
+      die "Missing value for ${opt}"
+    fi
+  }
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --server-ip)
+        require_arg "$1" "${2:-}"
         SERVER_IP="$2"
         shift 2
         ;;
       --pihole-password)
+        require_arg "$1" "${2:-}"
         PIHOLE_PASSWORD="$2"
         shift 2
         ;;
       --vpn-interface)
+        require_arg "$1" "${2:-}"
         VPN_INTERFACE="$2"
         shift 2
         ;;
       --vpn-port)
+        require_arg "$1" "${2:-}"
         VPN_PORT="$2"
         shift 2
         ;;
       --vpn-network)
+        require_arg "$1" "${2:-}"
         VPN_NETWORK="$2"
         shift 2
         ;;
       --client-name)
+        require_arg "$1" "${2:-}"
         CLIENT_NAME="$2"
         shift 2
         ;;
@@ -107,7 +120,7 @@ require_commands() {
     fi
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
-    install_packages "${missing[@]}"
+    die "Missing required command(s): ${missing[*]}. Please install the required dependencies and re-run the installer."
   fi
 }
 
@@ -155,6 +168,7 @@ configure_unbound() {
   install_packages wget
 
   install -d -o root -g root -m 755 /var/lib/unbound
+  install -d -o root -g root -m 755 /etc/unbound/unbound.conf.d
   wget -qO /var/lib/unbound/root.hints https://www.internic.net/domain/named.root
 
   cat <<'EOF' >/etc/unbound/unbound.conf.d/pi-hole.conf
@@ -211,7 +225,9 @@ install_pihole() {
 }
 
 configure_pihole() {
-  require_commands pihole
+  if ! command -v pihole >/dev/null 2>&1; then
+    die 'Pi-hole command not found after installation step. Aborting.'
+  fi
 
   log 'Configuring Pi-hole to use Unbound and apply supplied settings...'
   local interface
@@ -227,6 +243,12 @@ configure_pihole() {
 
 configure_wireguard() {
   log 'Installing and configuring WireGuard (secure VPN tunnel)...'
+  install_packages debconf-utils
+  printf '%s\n' \
+    'iptables-persistent iptables-persistent/autosave_v4 boolean true' \
+    'iptables-persistent iptables-persistent/autosave_v6 boolean true' \
+    | debconf-set-selections
+
   install_packages wireguard wireguard-tools qrencode iptables-persistent
 
   umask 077
@@ -318,6 +340,10 @@ EOF
 main() {
   parse_args "$@"
 
+  command -v apt-get >/dev/null 2>&1 || die 'apt-get not found. This installer requires a Debian/Ubuntu system with apt.'
+  command -v systemctl >/dev/null 2>&1 || die 'systemctl not found. This installer requires systemd to manage services.'
+
+  install_packages ca-certificates curl openssl iproute2 gawk
   require_commands ip awk curl openssl
 
   PRIMARY_INTERFACE=$(detect_primary_interface)
