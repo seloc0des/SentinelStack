@@ -12,6 +12,12 @@ SELO Privacy Stack is an automated installer that transforms a Debian/Ubuntu hos
 
 Run a single script and receive a fully configured private gateway with exportable WireGuard profiles and QR codes for mobile clients.
 
+## Analytics
+
+**5 months of protection across 11 devices (including mobile)**
+
+![Analytics Dashboard](608190499_17935447455113754_3209147998988952667_n.webp)
+
 ---
 
 ## Table of Contents
